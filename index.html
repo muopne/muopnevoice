@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MƯỚP NÈ - AI Voice & Dubbing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CSS: GIAO DIỆN CYBERPUNK --- */
+        :root {
+            --bg: #05050a;
+            --card: #10101a;
+            --accent: #bc13fe;
+            --neon-blue: #00f2fe;
+            --vip-gold: #ffd700;
+            --text: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Màn hình Đăng nhập */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, #1a1a2e 0%, #05050a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-box {
+            text-align: center;
+            padding: 40px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.5);
+            border-radius: 20px;
+            background: rgba(16, 16, 26, 0.9);
+            width: 320px;
+        }
+
+        h1 { font-family: 'Orbitron', sans-serif; letter-spacing: 5px; color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+
+        input[type="password"], textarea, select {
+            width: 90%;
+            padding: 12px;
+            margin: 15px 0;
+            background: #000;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        /* Giao diện chính */
+        .container { padding: 20px; max-width: 800px; margin: auto; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; }
+        .logo span { color: var(--neon-blue); font-size: 0.8rem; }
+
+        .card {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--neon-blue);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        /* Nút bấm */
+        button {
+            cursor: pointer;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .btn-glow { background: var(--accent); color: white; box-shadow: 0 0 15px var(--accent); width: 100%; }
+        .btn-glow:hover { transform: scale(1.05); }
+
+        .btn-vip { background: var(--vip-gold); color: black; box-shadow: 0 0 15px var(--vip-gold); font-size: 0.8rem; }
+        .btn-admin { background: #333; color: white; margin-left: 10px; font-size: 0.8rem; }
+        
+        .btn-primary { background: var(--neon-blue); color: #000; width: 100%; margin-top: 10px; }
+
+        /* Trang VIP */
+        .vip-container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+            border: 2px solid var(--vip-gold);
+            border-radius: 20px;
+            background: #101000;
+        }
+        .gold-text { color: var(--vip-gold); text-shadow: 0 0 10px var(--vip-gold); }
+        
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .tool-item {
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px dashed var(--vip-gold);
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="overlay">
+        <div class="login-box">
+            <h1>MƯỚP NÈ</h1>
+            <p style="font-size: 0.8rem; color: #888;">HỆ THỐNG BIẾN ĐỔI GIỌNG NÓI AI</p>
+            <input type="password" id="main-pass" placeholder="Mật khẩu vào web...">
+            <button onclick="checkLogin()" class="btn-glow">XÁC NHẬN</button>
+        </div>
+    </div>
+
+    <div id="main-content" class="container hidden">
+        <header>
+            <div class="logo">MƯỚP NÈ <span>OFFICIAL</span></div>
+            <div>
+                <button onclick="openVipPrompt()" class="btn-vip">BẢN VIP ✨</button>
+                <button onclick="openAdPrompt()" class="btn-admin">AD 🛠️</button>
+            </div>
+        </header>
+
+        <section class="card">
+            <h3>🎙️ Chuyển Văn Bản (Vietsub)</h3>
+            <textarea id="text-input" rows="4" placeholder="Nhập văn bản cần đọc tại đây..."></textarea>
+            <select id="voice-select">
+                <option value="vi-VN">Giọng Việt Nam chuẩn</option>
+                <option value="vi-VN-x-gft-local">Giọng Vietsub 1 (Trầm)</option>
+                <option value="vi-VN-x-vic-local">Giọng Vietsub 2 (Trong trẻo)</option>
+            </select>
+            <button onclick="speakText()" class="btn-primary">PHÁT GIỌNG NÓI</button>
+        </section>
+
+        <section class="card">
+            <h3>🎬 Lồng Tiếng Video AI</h3>
+            <p style="font-size: 0.8rem; color: #aaa;">Tải video lên để thay đổi giọng nói lồng tiếng.</p>
+            <input type="file" id="video-input" accept="video/*" style="margin-bottom: 10px;">
+            <p id="status-msg" style="color: red; font-size: 0.8rem;"></p>
+            <button onclick="processVideo()" class="btn-primary" style="background: #fff;">XỬ LÝ VIDEO</button>
+        </section>
+    </div>
+
+    <div id="vip-screen" class="overlay hidden">
+        <div class="vip-container">
+            <h1 class="gold-text">KHO VIP XỊN</h1>
+            <p>Chào mừng bạn đến với khu vực lồng tiếng cao cấp!</p>
+            <div class="tool-grid">
+                <div class="tool-item">🎭 Đổi giọng người nổi tiếng</div>
+                <div class="tool-item">🎵 Tách nhạc lấy lời</div>
+                <div class="tool-item">⚡ Xử lý tốc độ cao</div>
+                <div class="tool-item">📺 Xuất video 4K</div>
+            </div>
+            <button onclick="closeVip()" style="background: white; color: black;">THOÁT TRANG ẨN</button>
+        </div>
+    </div>
+
+    <script>
+        // Cấu hình mật khẩu theo ý bạn
+        const PASS = {
+            MAIN: "muopnesub",
+            VIP: "vipsub",
+            AD: "visub"
+        };
+
+        // 1. Logic Đăng nhập
+        function checkLogin() {
+            const input = document.getElementById('main-pass').value;
+            if (input === PASS.MAIN) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+            } else {
+                alert("Sai mật khẩu rồi! Nhập lại đi.");
+            }
+        }
+
+        // 2. Chuyển văn bản thành giọng nói
+        function speakText() {
+            const text = document.getElementById('text-input').value;
+            if (!text) {
+                alert("Vui lòng nhập văn bản!");
+                return;
+            }
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'vi-VN';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // 3. Xử lý Video & Cấm nội dung nhạy cảm
+        function processVideo() {
+            const fileInput = document.getElementById('video-input');
+            const file = fileInput.files[0];
+            const status = document.getElementById('status-msg');
+
+            if (!file) {
+                alert("Chưa chọn video mà!");
+                return;
+            }
+
+            // Danh sách từ khóa cấm
+            const forbidden = ['sex', 'porn', 'xxx', 'bao luc', 'dam', '18+'];
+            const fileName = file.name.toLowerCase();
+
+            const isSensitive = forbidden.some(word => fileName.includes(word));
+
+            if (isSensitive) {
+                status.innerText = "❌ CẢNH BÁO: Nội dung nhạy cảm bị nghiêm cấm trên hệ thống!";
+                fileInput.value = ""; 
+            } else {
+                status.style.color = "lime";
+                status.innerText = "✅ Video hợp lệ! Đang chuẩn bị bóc tách âm thanh...";
+                setTimeout(() => alert("Tính năng chuyển đổi giọng trong video đang được kết nối với Server AI..."), 1000);
+            }
+        }
+
+        // 4. Trang VIP (Trang ẩn)
+        function openVipPrompt() {
+            const pass = prompt("🔐 Nhập mật khẩu VIP:");
+            if (pass === PASS.VIP) {
+                document.getElementById('main-content').classList.add('hidden');
+                document.getElementById('vip-screen').classList.remove('hidden');
+            } else {
+                alert("Mật khẩu VIP không đúng!");
+            }
+        }
+
+        function closeVip() {
+            document.getElementById('vip-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+        }
+
+        // 5. Phần AD (Thấy được cả 2 mật khẩu)
+        function openAdPrompt() {
+            const pass = prompt("🛠️ Nhập mật khẩu ADMIN:");
+            if (pass === PASS.AD) {
+                alert("Chào Admin MƯỚP NÈ!\n\nThông tin mật khẩu:\n1. Mật khẩu chính: " + PASS.MAIN + "\n2. Mật khẩu VIP: " + PASS.VIP);
+            } else {
+                alert("Bạn không phải Admin!");
+            }
+        }
+    </script>
+</body>
+</html>
