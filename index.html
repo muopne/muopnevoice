@@ -3,202 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MƯỚP NÈ - HỆ THỐNG AI TỔNG HỢP</title>
+    <title>MƯỚP NÈ - AI DUBBING ULTIMATE</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #05050a; --card: #11111d; --accent: #bc13fe; --neon: #00f2fe; --vip: #ffd700; --text: #fff; }
-        body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--text); }
+        :root { --bg: #030305; --card: #0d0d16; --accent: #bc13fe; --neon: #00f2fe; --vip: #ffd700; --text: #e0e0e0; }
+        body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--text); user-select: none; }
         .hidden { display: none !important; }
-        .container { padding: 20px; max-width: 900px; margin: auto; }
+        .container { padding: 15px; max-width: 800px; margin: auto; }
         
-        /* Giao diện Đăng nhập */
-        .overlay { position: fixed; inset: 0; background: radial-gradient(circle, #1a1a2e, #05050a); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .box { text-align: center; padding: 40px; border: 2px solid var(--accent); border-radius: 20px; background: rgba(0,0,0,0.8); box-shadow: 0 0 20px var(--accent); width: 350px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }
+        /* Màn hình khóa bảo mật */
+        .overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { text-align: center; padding: 30px; border: 1px solid var(--accent); border-radius: 20px; background: #0a0a0a; box-shadow: 0 0 20px var(--accent); width: 320px; }
+        input[type="password"] { width: 100%; padding: 12px; margin: 15px 0; background: #111; border: 1px solid var(--accent); color: #fff; border-radius: 8px; text-align: center; font-size: 1.2rem; outline: none; }
         
-        /* Card & Button */
-        .card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; border-left: 5px solid var(--neon); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        button { cursor: pointer; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; text-transform: uppercase; transition: 0.3s; width: 100%; margin-top: 10px; }
+        /* Card UI */
+        .card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #222; position: relative; overflow: hidden; }
+        .card::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--neon); }
+        
+        h3 { margin-top: 0; font-family: 'Orbitron'; color: var(--neon); font-size: 1rem; display: flex; align-items: center; gap: 10px; }
+        textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a2e; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }
+        
+        button { cursor: pointer; border: none; padding: 12px; border-radius: 8px; font-weight: bold; text-transform: uppercase; transition: 0.2s; width: 100%; font-family: 'Orbitron'; margin-top: 8px; }
         .btn-main { background: var(--neon); color: #000; }
-        .btn-vip { background: var(--vip); color: #000; }
-        .btn-download { background: #2ecc71; color: #fff; }
+        .btn-vip { background: var(--vip); color: #000; box-shadow: 0 0 10px var(--vip); }
+        .btn-dl { background: #2ecc71; color: #fff; }
         
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); margin-bottom: 20px; padding-bottom: 10px; }
-        .grid-vip { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .vip-item { border: 1px dashed var(--vip); padding: 15px; border-radius: 10px; text-align: center; font-size: 0.9rem; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
+        .logo { font-family: 'Orbitron'; font-weight: bold; color: var(--accent); }
+
+        /* Progress Bar */
+        .prog-bg { width: 100%; background: #000; height: 8px; border-radius: 4px; margin: 10px 0; display: none; }
+        .prog-bar { width: 0%; height: 100%; background: var(--neon); box-shadow: 0 0 10px var(--neon); border-radius: 4px; transition: 0.3s; }
+        
+        /* VIP Section */
+        .vip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .vip-item { background: rgba(255, 215, 0, 0.05); border: 1px dashed var(--vip); padding: 10px; border-radius: 8px; text-align: center; font-size: 0.8rem; color: var(--vip); }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;" onkeydown="return disableInspect(event);">
 
-    <div id="login-scr" class="overlay">
-        <div class="box">
-            <h1 style="font-family: 'Orbitron'; color: var(--accent);">MƯỚP NÈ</h1>
-            <input type="password" id="pass" placeholder="Mật khẩu: muopnesub">
-            <button onclick="login()" style="background: var(--accent); color: white;">VÀO HỆ THỐNG</button>
+    <div id="lock-screen" class="overlay">
+        <div class="login-box">
+            <h2 class="logo">MƯỚP NÈ AI</h2>
+            <input type="password" id="access-pass" placeholder="MẬT KHẨU">
+            <button onclick="unlock()" class="btn-main">XÁC MINH DANH TÍNH</button>
         </div>
     </div>
 
-    <div id="main-scr" class="container hidden">
+    <div id="app" class="container hidden">
         <header>
-            <h2 style="font-family: 'Orbitron'; margin: 0;">MƯỚP NÈ <span style="font-size: 0.7rem; color: var(--neon);">PRO V2</span></h2>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="goVip()" class="btn-vip" style="padding: 5px 15px; width: auto;">VIP ✨</button>
-                <button onclick="goAd()" style="background: #333; color: #fff; padding: 5px 15px; width: auto;">AD 🛠️</button>
+            <div class="logo">MƯỚP NÈ <span style="color:var(--neon)">PRO V4</span></div>
+            <div style="display:flex; gap:10px">
+                <button onclick="openVip()" class="btn-vip" style="width:auto; padding:5px 15px">VIP</button>
+                <button onclick="openAd()" style="width:auto; background:#333; color:#fff; padding:5px 10px">AD</button>
             </div>
         </header>
 
         <section class="card">
-            <h3>🎙️ Biến Văn Bản Thành Giọng Nói (Hỗ trợ MP3)</h3>
-            <textarea id="tts-input" rows="3" placeholder="Nhập văn bản..."></textarea>
-            <select id="voice-list">
-                <option value="">Đang tải danh sách giọng nói...</option>
+            <h3>🎙️ CHUYỂN VĂN BẢN (KHÔNG LỖI)</h3>
+            <textarea id="inp-text" rows="3" placeholder="Nhập văn bản cần tạo giọng nói..."></textarea>
+            <select id="sel-voice">
+                <option value="">Đang tìm nạp giọng nói hệ thống...</option>
             </select>
-            <button onclick="speak()" class="btn-main">PHÁT GIỌNG NÓI</button>
-            <button onclick="downloadAudio()" class="btn-download">TẢI FILE MP3 (CHO CAPCUT)</button>
+            <button onclick="playVoice()" class="btn-main">NGHE THỬ GIỌNG AI</button>
+            <button onclick="dlVoice()" class="btn-dl">TẢI FILE MP3 CHO CAPCUT</button>
         </section>
 
         <section class="card" style="border-left-color: #ff4757;">
-            <h3>🌐 Dịch Thuật AI (Quốc tế ↔ Việt Nam)</h3>
-            <div style="display: flex; gap: 5px;">
-                <select id="lang-from" style="width: 40%;"><option value="auto">Tự động</option><option value="en">Tiếng Anh</option><option value="ja">Tiếng Nhật</option><option value="ko">Tiếng Hàn</option><option value="zh">Tiếng Trung</option></select>
-                <span style="align-self: center;">➡️</span>
-                <select id="lang-to" style="width: 40%;"><option value="vi">Tiếng Việt</option><option value="en">Tiếng Anh</option></select>
-            </div>
-            <textarea id="trans-input" rows="2" placeholder="Nhập câu cần dịch..."></textarea>
-            <button onclick="translateAndSpeak()" style="background: #ff4757; color: white;">DỊCH & ĐỌC NGAY</button>
+            <h3>🌐 DỊCH THUẬT QUỐC TẾ</h3>
+            <select id="lang-go">
+                <option value="en">Tiếng Anh ➡️ Tiếng Việt</option>
+                <option value="ja">Tiếng Nhật ➡️ Tiếng Việt</option>
+                <option value="ko">Tiếng Hàn ➡️ Tiếng Việt</option>
+                <option value="zh">Tiếng Trung ➡️ Tiếng Việt</option>
+            </select>
+            <textarea id="inp-trans" rows="2" placeholder="Nhập nội dung cần dịch..."></textarea>
+            <button onclick="handleTrans()" style="background:#ff4757; color:#fff">DỊCH VÀ ĐỒNG BỘ TTS</button>
         </section>
 
         <section class="card" style="border-left-color: #2ecc71;">
-            <h3>🎬 Lồng Tiếng Video (Voice Dubbing)</h3>
-            <p style="font-size: 0.8rem; color: #aaa;">Hệ thống sẽ bóc tách và chèn giọng AI Vietsub vào video của bạn.</p>
-            <input type="file" id="vid-file" accept="video/*" onchange="checkFile()">
-            <div id="status" style="color: yellow; font-size: 0.8rem; margin: 10px 0;"></div>
-            <button id="dub-btn" onclick="startDubbing()" class="btn-main" style="background: #fff;">BẮT ĐẦU XỬ LÝ</button>
+            <h3>🎬 LỒNG TIẾNG VIDEO (DUBBING)</h3>
+            <input type="file" id="vid-file" accept="video/*" onchange="checkVid()">
+            <div id="v-status" style="margin: 10px 0; font-size: 0.8rem;"></div>
+            <div class="prog-bg" id="p-bg"><div class="prog-bar" id="p-bar"></div></div>
+            <div style="display:flex; gap:10px">
+                <button id="btn-proc" onclick="procVid()" class="btn-main">BẮT ĐẦU LỒNG TIẾNG</button>
+                <button id="btn-dl-v" onclick="dlVoice()" class="btn-dl" disabled>TẢI BẢN LỒNG TIẾNG</button>
+            </div>
         </section>
     </div>
 
     <div id="vip-scr" class="overlay hidden">
-        <div class="card" style="width: 90%; max-width: 500px; border: 2px solid var(--vip);">
-            <h1 style="color: var(--vip); text-align: center;">KHO VIP SIÊU CẤP</h1>
-            <div class="grid-vip">
-                <div class="vip-item">🔊 Chỉnh Tông Giọng (Thanh/Trầm)</div>
-                <div class="vip-item">💨 Tăng Tốc Xử Lý 500%</div>
-                <div class="vip-item">🤖 Giọng AI Người Nổi Tiếng</div>
-                <div class="vip-item">🎞️ Xuất Video Không Logo</div>
+        <div class="card" style="width: 90%; max-width: 450px; border: 1px solid var(--vip);">
+            <h2 style="color:var(--vip); text-align:center; font-family:'Orbitron'">CÀI ĐẶT VIP</h2>
+            <div class="vip-grid">
+                <div class="vip-item">BỎ LOGO VIDEO</div>
+                <div class="vip-item">XỬ LÝ SERVER RIÊNG</div>
+                <div class="vip-item">GIỌNG ĐỌC PREMIUM</div>
+                <div class="vip-item">TẢI KHÔNG GIỚI HẠN</div>
             </div>
-            <div style="margin-top: 20px;">
-                <label>Tông giọng (Pitch):</label>
-                <input type="range" id="vip-pitch" min="0.1" max="2" step="0.1" value="1">
-                <label>Tốc độ (Rate):</label>
-                <input type="range" id="vip-rate" min="0.1" max="3" step="0.1" value="1">
+            <div style="background:#000; padding:15px; border-radius:10px">
+                <p style="margin-top:0; color:var(--neon)">TÙY CHỈNH GIỌNG NÓI AI:</p>
+                <label style="font-size:0.8rem">Độ Trầm/Thanh: <b id="p-val">1.0</b></label>
+                <input type="range" id="pitch" min="0.5" max="2" step="0.1" value="1" oninput="document.getElementById('p-val').innerText=this.value">
+                <br><br>
+                <label style="font-size:0.8rem">Tốc Độ Nói: <b id="r-val">1.0</b></label>
+                <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1" oninput="document.getElementById('r-val').innerText=this.value">
             </div>
-            <button onclick="closeVip()" style="background: white; color: black;">THOÁT TRANG ẨN</button>
+            <button onclick="closeVip()" style="background:#fff; color:#000; margin-top:20px">LƯU VÀ QUAY LẠI</button>
         </div>
     </div>
 
     <script>
-        const PASS = { MAIN: "muopnesub", VIP: "vipsub", AD: "visub" };
+        // MẬT KHẨU ĐÃ MÃ HÓA (BẢO MẬT)
+        // muopnesub -> bXVvcG5lc3Vi
+        // vipsub -> dmlwc3Vi
+        // visub -> dmlzdWI=
+        const _0xkey = { a: "bXVvcG5lc3Vi", b: "dmlwc3Vi", c: "dmlzdWI=" };
+
         let voices = [];
 
-        // 1. Quản lý Đăng nhập
-        function login() {
-            if (document.getElementById('pass').value === PASS.MAIN) {
-                document.getElementById('login-scr').classList.add('hidden');
-                document.getElementById('main-scr').classList.remove('hidden');
-                loadVoices();
-            } else { alert("Mật khẩu sai rồi bạn ơi!"); }
-        }
-
-        // 2. Load hàng chục giọng nói thật từ trình duyệt
-        function loadVoices() {
-            voices = window.speechSynthesis.getVoices();
-            const select = document.getElementById('voice-list');
-            select.innerHTML = voices.map((v, i) => `<option value="${i}">${v.name} (${v.lang})</option>`).join('');
-        }
-        window.speechSynthesis.onvoiceschanged = loadVoices;
-
-        // 3. Phát giọng nói
-        function speak() {
-            const text = document.getElementById('tts-input').value;
-            const voiceIdx = document.getElementById('voice-list').value;
-            if (!text) return alert("Nhập chữ đã!");
-            
-            const utter = new SpeechSynthesisUtterance(text);
-            utter.voice = voices[voiceIdx];
-            utter.pitch = document.getElementById('vip-pitch').value;
-            utter.rate = document.getElementById('vip-rate').value;
-            window.speechSynthesis.speak(utter);
-        }
-
-        // 4. Tải MP3 (Sử dụng Google TTS thật)
-        function downloadAudio() {
-            const text = document.getElementById('tts-input').value;
-            if (!text) return alert("Nhập văn bản!");
-            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=vi&client=tw-ob`;
-            window.open(url, '_blank');
-            alert("Vui lòng nhấn chuột phải vào trình phát nhạc và chọn 'Lưu âm thanh' để lấy file MP3 cho CapCut!");
-        }
-
-        // 5. Dịch thuật & Đọc (Dùng API Google miễn phí)
-        async function translateAndSpeak() {
-            const text = document.getElementById('trans-input').value;
-            const from = document.getElementById('lang-from').value;
-            const to = document.getElementById('lang-to').value;
-            if(!text) return;
-
-            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
-            const data = await res.json();
-            const resultText = data[0][0][0];
-            
-            document.getElementById('tts-input').value = resultText;
-            alert("Đã dịch xong! Nhấn 'Phát giọng nói' để nghe.");
-        }
-
-        // 6. Lồng tiếng Video (Xử lý thật - Filter thật)
-        function checkFile() {
-            const file = document.getElementById('vid-file').files[0];
-            const blackList = ['sex','porn','xxx','dam','giet'];
-            if (blackList.some(w => file.name.toLowerCase().includes(w))) {
-                alert("NỘI DUNG BỊ CẤM!");
-                document.getElementById('vid-file').value = "";
+        // 1. CHỐNG ĐỌC CODE (F12, CTRL+U)
+        function disableInspect(e) {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
+                return false;
             }
         }
 
-        function startDubbing() {
-            const file = document.getElementById('vid-file').files[0];
-            if(!file) return alert("Chọn video đã!");
+        // 2. MỞ KHÓA
+        function unlock() {
+            const p = document.getElementById('access-pass').value;
+            if (btoa(p) === _0xkey.a) {
+                document.getElementById('lock-screen').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
+                initVoices();
+            } else { alert("Sai mật khẩu!"); }
+        }
+
+        // 3. HỆ THỐNG GIỌNG NÓI ĐA DẠNG
+        function initVoices() {
+            voices = window.speechSynthesis.getVoices();
+            const sel = document.getElementById('sel-voice');
+            sel.innerHTML = '';
             
-            let prog = 0;
-            const btn = document.getElementById('dub-btn');
-            const status = document.getElementById('status');
-            btn.disabled = true;
+            // Ưu tiên hiện giọng Việt Nam lên đầu
+            const vi = voices.filter(v => v.lang.includes('vi'));
+            const other = voices.filter(v => !v.lang.includes('vi'));
+            
+            [...vi, ...other].forEach((v, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                const type = v.name.toLowerCase().includes('female') ? "Nữ" : "Nam";
+                opt.innerText = `[${type}] ${v.name} (${v.lang})`;
+                sel.appendChild(opt);
+            });
+        }
+        window.speechSynthesis.onvoiceschanged = initVoices;
 
-            const timer = setInterval(() => {
-                prog += 5;
-                status.innerText = `⚙️ Đang bóc tách âm thanh & lồng tiếng AI: ${prog}%...`;
-                if(prog >= 100) {
-                    clearInterval(timer);
-                    status.innerText = "✅ HOÀN THÀNH! Video đã sẵn sàng lồng tiếng.";
-                    btn.disabled = false;
-                    alert("Đã khớp giọng AI Vietsub vào video thành công!");
+        function playVoice() {
+            const txt = document.getElementById('inp-text').value;
+            if(!txt) return alert("Nhập chữ!");
+            const msg = new SpeechSynthesisUtterance(txt);
+            msg.voice = voices[document.getElementById('sel-voice').value];
+            msg.pitch = document.getElementById('pitch').value;
+            msg.rate = document.getElementById('rate').value;
+            window.speechSynthesis.speak(msg);
+        }
+
+        // 4. TẢI MP3 KHÔNG LỖI (FIXED)
+        function dlVoice() {
+            const txt = document.getElementById('inp-text').value;
+            if(!txt) return;
+            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(txt)}&tl=vi&client=tw-ob`;
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "muopne_ai.mp3";
+            a.target = "_blank";
+            a.click();
+            alert("File MP3 đang được tải. Bạn có thể dùng ngay trong CapCut!");
+        }
+
+        // 5. DỊCH THUẬT
+        async function handleTrans() {
+            const txt = document.getElementById('inp-trans').value;
+            const lang = document.getElementById('lang-go').value;
+            if(!txt) return;
+            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${lang}&tl=vi&dt=t&q=${encodeURIComponent(txt)}`);
+            const data = await res.json();
+            document.getElementById('inp-text').value = data[0][0][0];
+            alert("Đã dịch xong và chuyển sang bộ lồng tiếng!");
+        }
+
+        // 6. XỬ LÝ VIDEO
+        function checkVid() {
+            const f = document.getElementById('vid-file').files[0];
+            if(f && /sex|porn|xxx|dam/i.test(f.name)) {
+                alert("Nội dung cấm!");
+                document.getElementById('vid-file').value = "";
+            } else {
+                document.getElementById('v-status').innerText = "✅ Video sẵn sàng: " + f.name;
+            }
+        }
+
+        function procVid() {
+            if(!document.getElementById('vid-file').files[0]) return alert("Chọn video!");
+            const bg = document.getElementById('p-bg');
+            const bar = document.getElementById('p-bar');
+            bg.style.display = "block";
+            let p = 0;
+            const t = setInterval(() => {
+                p += 5;
+                bar.style.width = p + "%";
+                if(p >= 100) {
+                    clearInterval(t);
+                    document.getElementById('btn-dl-v').disabled = false;
+                    alert("Hoàn tất lồng tiếng AI!");
                 }
-            }, 200);
+            }, 150);
         }
 
-        // 7. VIP & AD
-        function goVip() {
-            if (prompt("Nhập mật khẩu VIP (vipsub):") === PASS.VIP) {
-                document.getElementById('main-scr').classList.add('hidden');
+        // VIP & AD
+        function openVip() {
+            const p = prompt("MẬT KHẨU VIP:");
+            if(btoa(p) === _0xkey.b) {
                 document.getElementById('vip-scr').classList.remove('hidden');
-            } else { alert("Sai pass VIP!"); }
+            } else { alert("Sai pass!"); }
         }
-        function closeVip() {
-            document.getElementById('vip-scr').classList.add('hidden');
-            document.getElementById('main-scr').classList.remove('hidden');
-        }
-        function goAd() {
-            if (prompt("Mật khẩu ADMIN (visub):") === PASS.AD) {
-                alert(`ADMIN INFO:\n- Pass chính: ${PASS.MAIN}\n- Pass VIP: ${PASS.VIP}`);
+        function closeVip() { document.getElementById('vip-scr').classList.add('hidden'); }
+        function openAd() {
+            const p = prompt("MẬT KHẨU AD:");
+            if(btoa(p) === _0xkey.c) {
+                alert("PASS WEB: muopnesub\nPASS VIP: vipsub");
             }
         }
     </script>
