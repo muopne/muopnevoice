@@ -3,189 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MƯỚP NÈ - MARBLE SAGA FULL</title>
+    <title>MƯỚP NÈ - MARBLE TIKFINITY</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; background: #02020a; font-family: 'Segoe UI', sans-serif; color: white; }
+        body { margin: 0; padding: 0; overflow: hidden; background: #050510; font-family: 'Arial', sans-serif; color: white; }
         canvas { display: block; }
-        
-        /* MÀN HÌNH KHÓA */
-        #login-screen {
-            position: fixed; inset: 0; background: #050510; display: flex;
-            flex-direction: column; align-items: center; justify-content: center; z-index: 999;
-        }
-        #login-screen h2 { color: #00ecff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
-        #pass-input { 
-            padding: 12px; border-radius: 8px; border: 2px solid #00ecff; 
-            background: #101025; color: white; text-align: center; font-size: 1.1rem; width: 220px;
-        }
-        #login-btn { 
-            margin-top: 15px; padding: 10px 25px; background: #00ecff; 
-            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000;
-        }
-
-        /* GIAO DIỆN GAME */
+        #login-screen { position: fixed; inset: 0; background: #050510; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
+        #pass-input { padding: 12px; border-radius: 8px; border: 2px solid #00ecff; background: #101025; color: white; text-align: center; width: 220px; margin-top: 10px; }
         #ui-layer { display: none; position: absolute; inset: 0; pointer-events: none; padding: 15px; }
-        .header { display: flex; justify-content: space-between; align-items: flex-start; }
-        #leaderboard { 
-            background: rgba(255, 215, 0, 0.1); padding: 12px; border: 2px solid #ffd700; 
-            border-radius: 12px; min-width: 150px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); 
-        }
-        .top-item { font-size: 1rem; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; }
-        .top-1 { color: #ffd700; font-size: 1.2rem; text-shadow: 0 0 10px #ffd700; }
-        #price-list { 
-            position: absolute; bottom: 100px; left: 15px; background: rgba(0,0,0,0.7); 
-            padding: 10px; border-radius: 8px; border-left: 4px solid #00ecff; font-size: 0.8rem; 
-        }
+        #leaderboard { background: rgba(255, 215, 0, 0.15); padding: 10px; border: 2px solid #ffd700; border-radius: 12px; min-width: 150px; }
+        #price-list { position: absolute; bottom: 100px; left: 15px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px; border-left: 4px solid #00ecff; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <h2>MƯỚP NÈ - LOGIN</h2>
-        <input type="password" id="pass-input" placeholder="Nhập mật khẩu...">
-        <button id="login-btn" onclick="checkPass()">MỞ KHÓA GAME</button>
-        <p id="err-msg" style="color: #ff4757; margin-top: 10px; display: none;">Mật khẩu sai rồi "Mướp Nè" ơi!</p>
+        <h2 style="color:#00ecff">MƯỚP NÈ - VIP GAME</h2>
+        <input type="password" id="pass-input" placeholder="Mật khẩu: muopnett">
+        <button onclick="checkPass()" style="margin-top:15px; padding:10px 25px; background:#00ecff; border:none; border-radius:8px; font-weight:bold;">VÀO GAME</button>
     </div>
 
     <div id="ui-layer">
-        <div class="header">
+        <div style="display:flex; justify-content:space-between;">
             <div>
-                <div style="color: #00ecff; font-weight: bold; font-size: 1.4rem; text-shadow: 0 0 10px #00ecff;">MƯỚP NÈ - MARBLE RACE</div>
-                <div id="status" style="color: #00ff00;">● SẴN SÀNG NHẬN TƯƠNG TÁC...</div>
+                <div style="color:#00ecff; font-weight:bold; font-size:1.4rem;">MƯỚP NÈ LIVE</div>
+                <div id="conn-status" style="color:red;">● CHƯA KẾT NỐI TIKTOK</div>
             </div>
             <div id="leaderboard">
-                <div style="text-align:center; font-weight:bold; border-bottom:1px solid #ffd700; margin-bottom:8px;">🏆 TOP ĐIỂM 🏆</div>
+                <div style="text-align:center; font-weight:bold; color:#ffd700;">🏆 TOP ĐIỂM 🏆</div>
                 <div id="top-list"></div>
             </div>
         </div>
         <div id="price-list">
-            <div style="font-weight:bold; color:#00ecff; margin-bottom:5px;">THỂ LỆ LIVESTREAM:</div>
-            <div style="color: #ff4757;">❤️ Tim = 1 Bi (1xđ)</div>
-            <div style="color: #a29bfe;">➕ Follow = 1 Bi To (2xđ)</div>
-            <div style="color: #55efc4;">🚀 Chia sẻ = 1 Bi To (3xđ)</div>
-            <div style="color: #ffd700;">🎁 1 Xu = 1 Bi Vàng VIP (5xđ)</div>
+            <div style="font-weight:bold; color:#00ecff; margin-bottom:5px;">BẢNG GIÁ BI:</div>
+            <div>❤️ Tim = 1 Bi | ➕ FL = 1 Bi To | 🚀 Share = 2 Bi | 🎁 1 Xu = 1 Bi VÀNG VIP</div>
         </div>
     </div>
 
     <canvas id="gameCanvas"></canvas>
 
     <script>
+        // --- CẤU HÌNH QUAN TRỌNG ---
+        const TIKFINITY_ID = "DÁN_ID_CỦA_BẠN_VÀO_ĐÂY"; // <-- THAY DÃY SỐ CỦA BẠN VÀO ĐÂY
+        // ---------------------------
+
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         let gameStarted = false;
 
         function checkPass() {
-            const pass = document.getElementById('pass-input').value;
-            if (pass === "muopnett") {
+            if (document.getElementById('pass-input').value === "muopnett") {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('ui-layer').style.display = 'block';
                 gameStarted = true;
-                resize();
-                loop();
-            } else {
-                document.getElementById('err-msg').style.display = 'block';
+                initGame();
+                connectTikFinity();
             }
         }
 
-        function resize() {
+        // Vật lý và Game (Tối ưu cho iPhone 7)
+        const gravity = 0.2, friction = 0.98;
+        let balls = [], pegs = [], buckets = [], userScores = {};
+
+        function initGame() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-
-        const gravity = 0.22;
-        const friction = 0.98;
-        let balls = [];
-        let pegs = [];
-        let buckets = [];
-        let userScores = {};
-
-        // Chướng ngại vật
-        for (let i = 0; i < 9; i++) {
-            let cols = i % 2 === 0 ? 8 : 9;
-            let spacingX = canvas.width / cols;
-            for (let j = 0; j < cols; j++) {
-                pegs.push({ x: j * spacingX + (i % 2 === 0 ? spacingX/2 : 0), y: 180 + i * 55, r: 5 });
+            // Tạo Pegs
+            for (let i = 0; i < 8; i++) {
+                let cols = 8;
+                let spX = canvas.width / cols;
+                for (let j = 0; j < cols; j++) pegs.push({ x: j * spX + (i % 2 === 0 ? spX/2 : 0), y: 180 + i * 55, r: 5 });
             }
+            // Ô điểm
+            const scs = [10, 50, 100, 50, 10], bW = canvas.width / 5;
+            for (let i = 0; i < 5; i++) buckets.push({ x: i * bW, w: bW, score: scs[i], color: `hsl(${i * 60 + 180}, 70%, 40%)` });
+            loop();
         }
 
-        // Ô điểm
-        const scores = [10, 50, 100, 50, 10];
-        const bWidth = canvas.width / 5;
-        for (let i = 0; i < 5; i++) {
-            buckets.push({ x: i * bWidth, w: bWidth, score: scores[i], color: `hsl(${i * 60 + 180}, 70%, 40%)` });
+        function connectTikFinity() {
+            if (TIKFINITY_ID === "2924994") {
+                alert("Bạn chưa dán ID TikFinity vào code!");
+                return;
+            }
+            
+            const socket = io("https://tikfinity.zerody.one");
+
+            socket.on("connect", () => {
+                socket.emit("join", TIKFINITY_ID);
+                document.getElementById('conn-status').innerText = "● ĐÃ KẾT NỐI TIKTOK";
+                document.getElementById('conn-status').style.color = "#00ff00";
+            });
+
+            // Lắng nghe sự kiện từ TikFinity
+            socket.on("event", (data) => {
+                // data.event: "gift", "follow", "share", "like"
+                // data.name: Tên người dùng
+                // data.count: Số lượng xu/bi
+                let type = "tim";
+                if(data.event === "gift") type = "gift";
+                if(data.event === "follow") type = "fl";
+                if(data.event === "share") type = "share";
+
+                let count = data.count || 1;
+                spawn(data.name, type, count);
+            });
         }
 
         class Ball {
             constructor(name, type) {
-                this.name = name;
-                this.type = type;
-                this.setup();
-                this.x = canvas.width / 2 + (Math.random() - 0.5) * 80;
-                this.y = -30;
-                this.vx = (Math.random() - 0.5) * 6;
-                this.vy = 0;
-            }
-            setup() {
-                switch(this.type) {
-                    case 'tim': this.r=10; this.color="#ff4757"; this.multi=1; this.lbl="❤️"; break;
-                    case 'fl': this.r=15; this.color="#a29bfe"; this.multi=2; this.lbl="➕"; break;
-                    case 'share': this.r=16; this.color="#55efc4"; this.multi=3; this.lbl="🚀"; break;
-                    case 'gift': this.r=22; this.color="#ffd700"; this.multi=5; this.lbl="⭐"; break;
-                    default: this.r=12; this.color="#fff"; this.multi=1; this.lbl="⚪";
-                }
-            }
-            draw() {
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-                ctx.fillStyle = this.color; ctx.fill();
-                ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.stroke();
-                ctx.fillStyle = "white"; ctx.font = "bold 10px Arial"; ctx.textAlign = "center";
-                ctx.fillText(this.lbl + " " + this.name.substring(0,7), this.x, this.y - (this.r + 5));
+                this.name = name; this.type = type;
+                this.r = type==='gift'?22:(type==='tim'?10:15);
+                this.color = type==='gift'?'#ffd700':(type==='tim'?'#ff4757':'#a29bfe');
+                this.multi = type==='gift'?5:(type==='share'?3:2);
+                if(type==='tim') this.multi=1;
+                this.x = canvas.width/2 + (Math.random()-0.5)*80; this.y = -30;
+                this.vx = (Math.random()-0.5)*6; this.vy = 0;
             }
             update() {
                 this.vy += gravity; this.vx *= friction; this.x += this.vx; this.y += this.vy;
-                if (this.x + this.r > canvas.width || this.x - this.r < 0) { this.vx *= -0.7; this.x = this.x < this.r ? this.r : canvas.width - this.r; }
+                if (this.x+this.r > canvas.width || this.x-this.r < 0) this.vx *= -0.7;
                 pegs.forEach(p => {
-                    let dx = this.x - p.x, dy = this.y - p.y, dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < this.r + p.r) {
-                        let ang = Math.atan2(dy, dx); this.vx += Math.cos(ang) * 3; this.vy += Math.sin(ang) * 3;
-                    }
+                    let dx=this.x-p.x, dy=this.y-p.y, d=Math.sqrt(dx*dx+dy*dy);
+                    if(d < this.r+p.r){ let a=Math.atan2(dy,dx); this.vx+=Math.cos(a)*3; this.vy+=Math.sin(a)*3; }
                 });
-                if (this.y > canvas.height - 50) {
-                    buckets.forEach(b => { if (this.x > b.x && this.x < b.x + b.w) addScore(this.name, b.score * this.multi); });
+                if (this.y > canvas.height-50) {
+                    buckets.forEach(b => { if(this.x>b.x && this.x<b.x+b.w) addScore(this.name, b.score*this.multi); });
                     return false;
                 }
                 return true;
+            }
+            draw() {
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+                ctx.fillStyle=this.color; ctx.fill(); ctx.strokeStyle="white"; ctx.stroke();
+                ctx.fillStyle="white"; ctx.font="bold 10px Arial"; ctx.textAlign="center";
+                ctx.fillText(this.name.substring(0,7), this.x, this.y-(this.r+5));
             }
         }
 
         function addScore(name, pts) {
             userScores[name] = (userScores[name] || 0) + pts;
-            let sorted = Object.entries(userScores).sort((a,b) => b[1]-a[1]).slice(0, 4);
-            document.getElementById('top-list').innerHTML = sorted.map((s,i) => 
-                `<div class="top-item ${i===0?'top-1':''}"><span>${i+1}. ${s[0]}</span><span>${s[1]}đ</span></div>`
-            ).join('');
+            let sorted = Object.entries(userScores).sort((a,b)=>b[1]-a[1]).slice(0,4);
+            document.getElementById('top-list').innerHTML = sorted.map((s,i)=>`<div style="font-size:0.9rem; margin:3px 0; color:${i===0?'#ffd700':'#fff'}">${i+1}. ${s[0]}: ${s[1]}đ</div>`).join('');
         }
 
-        window.spawn = function(name, type, count = 1) {
-            if(!gameStarted) return;
-            let limit = Math.min(count, 30);
-            for(let i=0; i<limit; i++) setTimeout(() => balls.push(new Ball(name, type)), i * 150);
-            document.getElementById('status').innerText = `● ĐANG THẢ BI CHO: ${name.toUpperCase()}`;
-        };
+        function spawn(name, type, count) {
+            let limit = Math.min(count, 20);
+            for(let i=0; i<limit; i++) setTimeout(() => balls.push(new Ball(name, type)), i*150);
+        }
 
         function loop() {
-            if(!gameStarted) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            buckets.forEach(b => {
-                ctx.fillStyle = b.color; ctx.globalAlpha = 0.3; ctx.fillRect(b.x, canvas.height-50, b.w, 50);
-                ctx.globalAlpha = 1; ctx.fillStyle = "white"; ctx.font = "bold 14px Arial";
-                ctx.fillText(b.score, b.x + b.w/2, canvas.height-20);
-            });
-            ctx.fillStyle = "#444";
-            pegs.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); });
-            balls = balls.filter(b => b.update());
-            balls.forEach(b => b.draw());
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            buckets.forEach(b => { ctx.fillStyle=b.color; ctx.globalAlpha=0.3; ctx.fillRect(b.x, canvas.height-50, b.w, 50); ctx.globalAlpha=1; ctx.fillStyle="white"; ctx.fillText(b.score, b.x+b.w/2, canvas.height-20); });
+            ctx.fillStyle="#444"; pegs.forEach(p=>{ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();});
+            balls=balls.filter(b=>b.update()); balls.forEach(b=>b.draw());
             requestAnimationFrame(loop);
         }
     </script>
